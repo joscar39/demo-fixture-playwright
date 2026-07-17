@@ -1,0 +1,45 @@
+import { test } from '../fixtures/test.js';
+
+/**
+ * TC-AUTH-002 | Nivel: Sistema (E2E) | Tipo: Funcional negativa
+ * Tecnica de diseno: Particion de equivalencia (clases invalidas).
+ * Enfoque data-driven: una sola logica, multiples juegos de datos.
+ * Equivale al patron Scenario Outline + Examples de Gherkin que ya usas.
+ */
+const casosInvalidos = [
+  {
+    caso: 'usuario bloqueado',
+    user: 'locked_out_user',
+    pass: 'secret_sauce',
+    error: 'locked out',
+  },
+  {
+    caso: 'password incorrecto',
+    user: 'standard_user',
+    pass: 'wrong_password',
+    error: 'do not match',
+  },
+  {
+    caso: 'campos vacios',
+    user: '',
+    pass: '',
+    error: 'Username is required',
+  },
+];
+
+test.describe('Autenticacion negativa', () => {
+  for (const c of casosInvalidos) {
+    test(`Login rechazado: ${c.caso} @Auth @DataDriven`, async ({
+      loginPage,
+    }) => {
+      // Arrange
+      await loginPage.goto();
+
+      // Act
+      await loginPage.login(c.user, c.pass);
+
+      // Assert
+      await loginPage.expectError(c.error);
+    });
+  }
+});
