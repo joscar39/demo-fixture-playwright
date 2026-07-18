@@ -25,12 +25,19 @@ export class SamplePage{
   }
 
   // 3) Metodos de servicio (acciones):
-  async submit(value: string): Promise<void> {
+  /** Arrange: navega a la pagina de login. */
+  async goto(): Promise<void> {
+    await this.page.goto('/');
+  }
+
+  /** Servicio de negocio: iniciar sesion con credenciales dadas. */
+  async something(value: string): Promise<void> {
     await this.someInput.fill(value);
     await this.submitButton.click();
   }
 
   // 4) Aserciones (oracle) dentro del POM:
+  /** Oracle: verifica que se muestra un mensaje de error concreto. */
   async expectResult(expected: string): Promise<void> {
     await expect(this.resultText).toBeVisible();
     await expect(this.resultText).toContainText(expected);
