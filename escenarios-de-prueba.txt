@@ -1,0 +1,163 @@
+================================================================================
+ ESCENARIOS DE PRUEBA - TIENDA DEMO SHOPIFY (https://sauce-demo.myshopify.com)
+ Proyecto: demo-fixture-playwright
+ Fecha: 2026-07-20
+================================================================================
+
+La aplicacion bajo prueba es una tienda en linea (Shopify) que ofrece:
+login de clientes, catalogo de productos con variantes (talla/color),
+carrito de compras y pagina de cuenta ("Account Details and Order History").
+
+--------------------------------------------------------------------------------
+ A) ESCENARIOS YA AUTOMATIZADOS
+--------------------------------------------------------------------------------
+
+ESCENARIO 1: Login exitoso con credenciales validas
+  Estado:      AUTOMATIZADO (e2e/specs/login.spec.ts)  Tags: @Smoke @auth
+  Precondicion: Usuario registrado (joscar@yopmail.com / Aa123456.)
+  Pasos:
+    1. Navegar a la pagina principal de la tienda.
+    2. Hacer clic en el enlace "Log In".
+    3. Ingresar email y password validos.
+    4. Hacer clic en el boton "Sign In".
+  Resultado esperado:
+    - Se muestra la pantalla de cuenta con el encabezado
+      "Account Details and Order History".
+  Evidencia: captura adjunta via assertWithEvidence (reporte Allure).
+
+ESCENARIO 2: Agregar producto "Black heels" talla M al carrito
+  Estado:      AUTOMATIZADO (e2e/specs/add-to-cart.spec.ts)  Tags: @Smoke @Catalog
+  Precondicion: Sesion iniciada con usuario valido.
+  Pasos:
+    1. Iniciar sesion (reutiliza el flujo del Escenario 1).
+    2. Abrir "Catalog" desde el menu lateral.
+    3. Abrir el detalle del producto "Black heels".
+    4. Verificar la redireccion al detalle (URL /products/ y titulo h1).
+    5. Seleccionar talla "M" (el color queda en "Red", unica opcion).
+    6. Hacer clic en "Add to Cart".
+  Resultado esperado:
+    - La variante seleccionada es talla M / color Red.
+    - El enlace "My Cart" del header muestra el contador "(1)".
+  Evidencia: capturas del detalle del producto y del carrito (Allure).
+
+--------------------------------------------------------------------------------
+ B) ESCENARIOS PROPUESTOS (PENDIENTES DE AUTOMATIZAR)
+--------------------------------------------------------------------------------
+
+ESCENARIO 3: Login fallido con credenciales invalidas
+  Tags sugeridos: @Regression @auth
+  Precondicion: Ninguna (usuario no autenticado).
+  Pasos:
+    1. Navegar a la pagina principal y hacer clic en "Log In".
+    2. Ingresar un email valido con un password incorrecto.
+    3. Hacer clic en "Sign In".
+  Resultado esperado:
+    - Se muestra un mensaje de error de credenciales invalidas
+      ("Incorrect email or password.") y NO se accede a la cuenta.
+  Nota: existe material de referencia en
+        e2e/specs/_reference/login-negative.spec.ts.txt
+
+ESCENARIO 4: Eliminar producto del carrito
+  Tags sugeridos: @Regression @Cart
+  Precondicion: Sesion iniciada y al menos 1 producto en el carrito
+                (reutilizar flujo del Escenario 2).
+  Pasos:
+    1. Abrir "My Cart" desde el header.
+    2. Verificar que el producto agregado aparece con su variante y precio.
+    3. Hacer clic en la opcion "Remove" del item.
+  Resultado esperado:
+    - El carrito queda vacio y el contador del header vuelve a "(0)"
+      o desaparece; se muestra el mensaje de carrito vacio.
+
+ESCENARIO 5: Actualizar cantidad de un producto en el carrito
+  Tags sugeridos: @Regression @Cart
+  Precondicion: Sesion iniciada y 1 unidad de un producto en el carrito.
+  Pasos:
+    1. Abrir "My Cart".
+    2. Cambiar la cantidad del item de 1 a 2.
+    3. Actualizar el carrito.
+  Resultado esperado:
+    - El subtotal se recalcula (precio unitario x 2) y el contador
+      del header muestra "(2)".
+
+ESCENARIO 6: Agregar multiples productos distintos al carrito
+  Tags sugeridos: @Regression @Catalog
+  Precondicion: Sesion iniciada.
+  Pasos:
+    1. Abrir "Catalog" y agregar el producto "Black heels" (talla M).
+    2. Volver al catalogo y abrir un segundo producto distinto.
+    3. Seleccionar una variante valida y agregarlo al carrito.
+  Resultado esperado:
+    - El contador del carrito muestra "(2)" y ambos productos aparecen
+      listados en "My Cart" con sus variantes correctas.
+
+ESCENARIO 7: Inicio de checkout desde el carrito
+  Tags sugeridos: @Smoke @Checkout
+  Precondicion: Sesion iniciada y al menos 1 producto en el carrito.
+  Pasos:
+    1. Abrir "My Cart".
+    2. Hacer clic en el boton "Check Out" / "Checkout".
+  Resultado esperado:
+    - Se redirige al flujo de checkout de Shopify mostrando el resumen
+      del pedido con el producto, la variante y el total correctos.
+  Nota: al ser tienda demo, la prueba se limita a validar la llegada
+        al checkout (no se completa el pago).
+
+================================================================================
+ C) ESTRUCTURA DEL PROYECTO
+================================================================================
+
+demo-fixture-playwright/
+|-- playwright.config.ts        Configuracion central: baseURL
+|                               (https://sauce-demo.myshopify.com),
+|                               testIdAttribute ('data-test'), reporteria
+|                               (line + Allure), trace/screenshot/video
+|                               solo en fallo, proyecto chromium.
+|
+|-- e2e/
+|   |-- specs/                  LOS TESTS. Cada archivo *.spec.ts es un flujo
+|   |   |                       de negocio con patron Arrange -> Act -> Assert
+|   |   |                       y tags (@Smoke, @auth, @Catalog) para filtrar.
+|   |   |-- login.spec.ts           Escenario 1 (login exitoso).
+|   |   |-- add-to-cart.spec.ts     Escenario 2 (agregar al carrito).
+|   |   |-- sample.spec.template.ts Plantilla para crear nuevos specs.
+|   |   +-- _reference/             Ejemplos de consulta (no se ejecutan,
+|   |                               excluidos via testIgnore).
+|   |
+|   |-- pages/                  PAGE OBJECT MODEL (POM). Cada clase encapsula
+|   |   |                       una pantalla: locators privados (prioridad
+|   |   |                       getByRole > getByLabel > getByTestId), metodos
+|   |   |                       de servicio (acciones) y metodos expectXxx
+|   |   |                       (aserciones/oracle) dentro del propio POM.
+|   |   |-- LoginPage.ts            Login y verificacion de cuenta.
+|   |   |-- CatalogPage.ts          Catalogo, detalle, variantes y carrito.
+|   |   |-- SamplePage.template.ts  Plantilla para nuevos POM.
+|   |   +-- _reference/             POMs de ejemplo (no ejecutables).
+|   |
+|   |-- fixtures/
+|   |   +-- test.ts             FIXTURES personalizadas: extiende el `test`
+|   |                           base de Playwright para inyectar los POM
+|   |                           (loginPage, catalogPage) directamente en la
+|   |                           firma del test. Asi los specs piden entre { }
+|   |                           solo lo que necesitan, sin hacer `new` manual.
+|   |
+|   |-- utils/
+|   |   +-- evidence.ts         Helper assertWithEvidence: envuelve una
+|   |                           asercion y adjunta captura de pantalla como
+|   |                           evidencia al reporte (Allure).
+|   |
+|   +-- data/                   Datos/archivos de apoyo para las pruebas
+|                               (ej. logo.png).
+|
++-- allure-results/             Salida de la reporteria Allure (generada).
+
+FLUJO DE TRABAJO PARA UN NUEVO ESCENARIO:
+  1. Crear/ampliar el Page Object en e2e/pages/ (locators + servicios + oracles).
+  2. Registrar el POM como fixture en e2e/fixtures/test.ts (3 pasos: import,
+     agregarlo al type Pages, agregar el bloque en base.extend).
+  3. Crear el spec en e2e/specs/ copiando sample.spec.template.ts, pidiendo
+     las fixtures necesarias y envolviendo las validaciones clave en
+     assertWithEvidence.
+  4. Ejecutar: npx playwright test  (se puede sobreescribir la URL con
+     BASE_URL=... y filtrar por tag con --grep @Smoke).
+================================================================================
