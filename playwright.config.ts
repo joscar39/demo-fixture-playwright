@@ -28,7 +28,7 @@ export default defineConfig({
   use: {
     // 1) CAMBIA ESTO por la URL de la app que te den.
     //    Puedes sobreescribir sin tocar codigo: BASE_URL=... npx playwright test
-    baseURL: 'https://www.saucedemo.com',
+    baseURL: 'https://sauce-demo.myshopify.com',
 
     // 2) Ajusta al atributo real del sitio. Los mas comunes:
     //    'data-test' (SauceDemo) | 'data-testid' (React estandar) | 'data-qa'
@@ -38,7 +38,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    actionTimeout: 10_000,
+    actionTimeout: 50_000,
   },
 
   projects: [

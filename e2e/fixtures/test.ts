@@ -1,4 +1,4 @@
-import { test as base, expect } from '@playwright/test';
+import {test as base, expect, Page} from '@playwright/test';
 
 /**
  * FIXTURES: aqui inyectas los Page Objects que crees durante la prueba.
@@ -11,14 +11,25 @@ import { test as base, expect } from '@playwright/test';
  * Ejemplo listo para descomentar:
  */
 
+import {LoginPage} from "../pages/LoginPage";
+import {CatalogPage} from "../pages/CatalogPage";
 // import { SamplePage } from '../pages/SamplePage.template';
 
 type Pages = {
-    // samplePage: SamplePage;
-    _placeholder?: never; // evita que el type quede vacio; borralo al anadir el primer POM
+    loginPage: LoginPage;
+    catalogPage: CatalogPage;
+    // // samplePage: SamplePage;
+    // _placeholder?: never; // evita que el type quede vacio; borralo al anadir el primer POM
 };
 
 export const test = base.extend<Pages>({
+
+    loginPage: async ({page}, use) => {
+        await use(new LoginPage(page));
+    },
+    catalogPage: async ({page}, use) => {
+        await use(new CatalogPage(page));
+    },
     // samplePage: async ({ page }, use) => {
     //   await use(new SamplePage(page));
     // },
