@@ -1,0 +1,22 @@
+✦ PROMPT - primero el contexto
+Lee estos archivos para entender la arquitectura del proyecto antes de generar nada:
+- e2e/fixtures/test.ts
+- e2e/pages/LoginPage.ts (el POM ya creado)
+- e2e/specs/login.spec.ts (el spec ya creado)
+- e2e/utils/evidence.ts
+
+✦ PROMPT - luego la generacion (adaptar lo subrayado)
+Usa Playwright MCP para abrir <URL-de-la-app>, hacer login con <credenciales> y explorar el flujo de: 
+<describir el
+escenario que pidieron, ej.: crear un registro y validar que aparece en la lista>. 
+
+Identifica los locators reales mediante
+el arbol de accesibilidad.
+Luego genera, siguiendo EXACTAMENTE el estilo de mis archivos existentes:
+1. Un Page Object en e2e/pages/<Nombre>Page.ts: locators private readonly, priorizando getByRole/getByLabel y
+usando id/name estables solo si es necesario; con las aserciones (expectXxx) DENTRO del POM.
+2. El registro de la fixture en e2e/fixtures/test.ts (import + type Pages + extend).
+3. Un spec en e2e/specs/<nombre>.spec.ts con patron Arrange-Act-Assert, tags @Smoke @<Modulo> y
+assertWithEvidence en las validaciones.
+Reglas estrictas: NO uses waitForTimeout. NO uses XPath posicional. NO uses ids autogenerados ni clases con
+hash. Muestrame los cambios ANTES de escribir los archivos.

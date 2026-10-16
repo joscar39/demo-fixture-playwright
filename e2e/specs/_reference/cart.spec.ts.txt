@@ -1,0 +1,34 @@
+import { test } from '../fixtures/test.js';
+
+/**
+ * TC-CART-001 | Nivel: Sistema (E2E) | Tipo: Funcional positiva
+ * Objetivo: anadir un producto al carrito actualiza el badge y el carrito.
+ * Nota: el login es una PRECONDICION, no el objeto de la prueba,
+ * por eso vive en beforeEach (setup), no en el cuerpo del test.
+ */
+test.describe('Carrito de compras', () => {
+  const PRODUCTO = 'Sauce Labs Backpack';
+
+  test.beforeEach(async ({ loginPage, inventoryPage }) => {
+    await loginPage.goto();
+    await loginPage.login('standard_user', 'secret_sauce');
+    await inventoryPage.expectLoaded();
+  });
+
+  test('Anadir un producto refleja la cantidad en el carrito @Smoke @Cart', async ({
+    inventoryPage,
+    cartPage,
+  }) => {
+    // Act
+    await inventoryPage.addProductToCart(PRODUCTO);
+
+    // Assert (nivel inventario)
+    await inventoryPage.expectCartCount(1);
+
+    // Act
+    await inventoryPage.openCart();
+
+    // Assert (nivel carrito)
+    await cartPage.expectItem(PRODUCTO, 1);
+  });
+});

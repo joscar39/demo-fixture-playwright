@@ -1,0 +1,43 @@
+import { type Page, type Locator, expect } from '@playwright/test';
+
+/**
+ * Page Object de la pantalla de Login.
+ * Expone SERVICIOS (metodos) que la pagina ofrece, no locators sueltos.
+ * Referencia: Practical Playwright, cap. 7 - "El POM representa los
+ * servicios que ofrece una pagina como metodos".
+ */
+export class LoginPage {
+  readonly page: Page;
+  private readonly username: Locator;
+  private readonly password: Locator;
+  private readonly loginButton: Locator;
+  private readonly errorMessage: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    // Locators semanticos y estables (data-test via testIdAttribute).
+    this.username = page.getByTestId('username');
+    this.password = page.getByTestId('password');
+    this.loginButton = page.getByTestId('login-button');
+    this.errorMessage = page.getByTestId('error');
+  }
+
+  /** Arrange: navega a la pagina de login. */
+  async goto(): Promise<void> {
+    await this.page.goto('/');
+  }
+
+  /** Servicio de negocio: iniciar sesion con credenciales dadas. */
+  async login(user: string, pass: string): Promise<void> {
+    await this.username.fill(user);
+    await this.password.fill(pass);
+    await this.loginButton.click();
+  }
+
+  /** Oracle: verifica que se muestra un mensaje de error concreto. */
+  async expectError(expectedText: string): Promise<void> {
+    // Web-first assertion: espera automaticamente a que el elemento aparezca.
+    await expect(this.errorMessage).toBeVisible();
+    await expect(this.errorMessage).toContainText(expectedText);
+  }
+}

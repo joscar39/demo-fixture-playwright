@@ -1,0 +1,22 @@
+import { test, expect } from '../fixtures/test.js';
+
+/**
+ * TC-AUTH-001 | Nivel: Sistema (E2E) | Tipo: Funcional positiva
+ * Tecnica de diseno: Particion de equivalencia (clase valida).
+ * Objetivo: un usuario estandar puede autenticarse y llegar al inventario.
+ */
+test.describe('Autenticacion', () => {
+  test('Login exitoso con usuario estandar @Smoke @Auth', async ({
+    loginPage,
+    inventoryPage,
+  }) => {
+    // Arrange
+    await loginPage.goto();
+
+    // Act
+    await loginPage.login('standard_user', 'secret_sauce');
+
+    // Assert
+    await inventoryPage.expectLoaded();
+  });
+});
